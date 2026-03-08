@@ -9,6 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { SourceItem } from '@/components/SourceItem'
 import { Discussion } from '@/components/Discussion'
+import { Suggestions } from '@/components/Suggestions'
+import { ForkDiff } from '@/components/ForkDiff'
 import {
   Eye,
   Heart,
@@ -311,6 +313,9 @@ export default function PackDetailPage() {
           ))}
         </div>
 
+        {/* Fork Diff */}
+        {pack.forkedFrom && <ForkDiff packId={pack.id} />}
+
         {/* Actions */}
         <div className="flex flex-wrap gap-3">
           <Button
@@ -497,6 +502,9 @@ export default function PackDetailPage() {
 
       {/* Discussion */}
       <Discussion packId={pack.id} />
+
+      {/* Source Suggestions */}
+      <Suggestions packId={pack.id} ownerId={pack.creator.id} />
 
       {/* AI Improve Suggestion */}
       <Card className="border-dashed border-violet-500/30 bg-violet-500/5">

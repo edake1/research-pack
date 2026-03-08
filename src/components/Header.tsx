@@ -21,6 +21,7 @@ import { Search, Plus, BookOpen, Sparkles, LogIn, LogOut, User, Menu } from 'luc
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { NotificationBell } from '@/components/NotificationBell'
 
 export function Header() {
   const { data: session, status } = useSession()
@@ -78,6 +79,7 @@ export function Header() {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">
           <ThemeToggle />
+          <NotificationBell />
 
           <Link href="/packs/new">
             <Button className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 btn-shine">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth-utils'
+import { notify } from '@/lib/notifications'
 
 // POST /api/packs/[id]/thanks - Toggle thanks
 export async function POST(
@@ -46,6 +47,16 @@ export async function POST(
         where: { id },
         data: { thanksCount: { increment: 1 } }
       })
+
+      // Notify the pack creator
+      await notify({
+        userId: pack.creatorId,
+        actorId: userId,
+        type: 'THANKS',
+        message: `thanked you for "${pack.title}"`,
+        link: `/packs/${id}`,
+      })
+
       return NextResponse.json({ thanked: true })
     }
   } catch (error) {

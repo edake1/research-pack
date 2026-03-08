@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth-utils'
+import { notify } from '@/lib/notifications'
 
 // POST /api/packs/[id]/fork - Fork a pack
 export async function POST(
@@ -68,6 +69,15 @@ export async function POST(
     await prisma.researchPack.update({
       where: { id },
       data: { forkCount: { increment: 1 } }
+    })
+
+    // Notify the original pack creator
+    await notify({
+      userId: originalPack.creatorId,
+      actorId: userId,
+      type: 'FORK',
+      message: `forked your pack "${originalPack.title}"`,
+      link: `/packs/${forkedPack.id}`,
     })
 
     return NextResponse.json(forkedPack, { status: 201 })

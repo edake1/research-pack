@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { requireAuth, getCurrentUserId } from '@/lib/auth-utils'
+import { notify } from '@/lib/notifications'
 
 // GET /api/packs/[id]/comments - List comments for a pack
 export async function GET(
@@ -85,6 +86,15 @@ export async function POST(
           }
         }
       }
+    })
+
+    // Notify the pack creator about the comment
+    await notify({
+      userId: pack.creatorId,
+      actorId: userId,
+      type: 'COMMENT',
+      message: `commented on "${pack.title}"`,
+      link: `/packs/${id}`,
     })
 
     return NextResponse.json(comment, { status: 201 })
