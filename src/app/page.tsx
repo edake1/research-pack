@@ -17,7 +17,13 @@ import {
   Zap,
   Star,
   TrendingUp,
-  Loader2
+  Loader2,
+  Brain,
+  Globe,
+  Rocket,
+  Atom,
+  TrendingUp as ChartUp,
+  Dna
 } from 'lucide-react'
 
 interface Pack {
@@ -44,12 +50,12 @@ interface Pack {
 }
 
 const categories = [
-  { name: 'Artificial Intelligence', icon: '🤖', gradient: 'from-violet-500 to-purple-600' },
-  { name: 'Climate Science', icon: '🌍', gradient: 'from-emerald-500 to-green-600' },
-  { name: 'Space Exploration', icon: '🚀', gradient: 'from-blue-500 to-indigo-600' },
-  { name: 'Quantum Computing', icon: '⚛️', gradient: 'from-purple-500 to-pink-600' },
-  { name: 'Finance & ML', icon: '📈', gradient: 'from-amber-500 to-orange-600' },
-  { name: 'Biology', icon: '🧬', gradient: 'from-teal-500 to-cyan-600' },
+  { name: 'Artificial Intelligence', icon: Brain, gradient: 'from-violet-500 to-purple-600', iconColor: 'text-violet-400' },
+  { name: 'Climate Science', icon: Globe, gradient: 'from-emerald-500 to-green-600', iconColor: 'text-emerald-400' },
+  { name: 'Space Exploration', icon: Rocket, gradient: 'from-blue-500 to-indigo-600', iconColor: 'text-blue-400' },
+  { name: 'Quantum Computing', icon: Atom, gradient: 'from-purple-500 to-pink-600', iconColor: 'text-purple-400' },
+  { name: 'Finance & ML', icon: ChartUp, gradient: 'from-amber-500 to-orange-600', iconColor: 'text-amber-400' },
+  { name: 'Biology', icon: Dna, gradient: 'from-teal-500 to-cyan-600', iconColor: 'text-teal-400' },
 ]
 
 const stats = [
@@ -126,9 +132,9 @@ function HomeContent() {
   }
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-20">
       {/* Hero Section */}
-      <section className="relative text-center py-16 space-y-8">
+      <section className="relative text-center py-12 md:py-16 space-y-7">
         {/* Background decoration */}
         <div className="absolute inset-0 hero-gradient pointer-events-none" />
 
@@ -179,7 +185,7 @@ function HomeContent() {
         {/* Search */}
         <form onSubmit={handleSearch} className="relative max-w-xl mx-auto animate-in fade-in-0 slide-in-from-bottom-4 duration-700 delay-200">
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl blur-lg opacity-25 group-hover:opacity-40 transition-opacity" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl blur-lg opacity-15 group-hover:opacity-25 transition-opacity" />
             <div className="relative flex items-center bg-background rounded-xl border border-border/50 shadow-xl">
               <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
               <Input
@@ -240,7 +246,9 @@ function HomeContent() {
               style={{ animationDelay: `${index * 50}ms` }}
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
-              <span className="text-3xl mb-3 block">{cat.icon}</span>
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center mb-3 shadow-sm`}>
+                <cat.icon className="h-5 w-5 text-white" />
+              </div>
               <p className="font-medium text-sm">{cat.name}</p>
             </button>
           ))}
@@ -311,12 +319,12 @@ function HomeContent() {
       )}
 
       {/* AI Generate CTA */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-1">
-        <div className="relative rounded-[calc(1.5rem-4px)] bg-background p-8 md:p-12">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-violet-500/20 to-indigo-500/20 blur-3xl" />
+      <section className="relative overflow-hidden rounded-2xl border border-violet-500/20 bg-card">
+        <div className="relative p-8 md:p-10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 blur-3xl" />
           <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/30">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600">
                 <Zap className="h-6 w-6 text-white" />
               </div>
               <div>

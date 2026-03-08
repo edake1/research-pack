@@ -31,7 +31,7 @@ export default function RootLayout({
 
             <div className="relative z-10">
               <Header />
-              <main className="container py-6">
+              <main className="container px-6 md:px-8 py-8">
                 {children}
               </main>
             </div>
