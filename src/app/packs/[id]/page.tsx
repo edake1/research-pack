@@ -11,6 +11,7 @@ import { SourceItem } from '@/components/SourceItem'
 import { Discussion } from '@/components/Discussion'
 import { Suggestions } from '@/components/Suggestions'
 import { ForkDiff } from '@/components/ForkDiff'
+import { TagGlossary } from '@/components/TagGlossary'
 import {
   Eye,
   Heart,
@@ -312,17 +313,7 @@ export default function PackDetailPage() {
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <Link
-              key={tag}
-              href={`/search?q=${encodeURIComponent(tag)}`}
-            >
-              <Badge
-                variant="outline"
-                className="px-3 py-1 border-border/50 hover:bg-muted/50 hover:border-border cursor-pointer transition-colors"
-              >
-                {tag}
-              </Badge>
-            </Link>
+            <TagGlossary key={tag} tag={tag} context={pack.topic} />
           ))}
         </div>
 
