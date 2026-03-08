@@ -20,8 +20,21 @@ import {
   Zap,
   Sparkles,
   Bookmark,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Pencil,
+  Trash2
 } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
@@ -78,8 +91,10 @@ export default function PackDetailPage() {
   const [forking, setForking] = useState(false)
   const [thanking, setThanking] = useState(false)
   const [thanked, setThanked] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const { data: session } = useSession()
   const currentUserId = (session?.user as any)?.id ?? null
+  const isOwner = currentUserId && pack?.creator?.id === currentUserId
 
   useEffect(() => {
     fetchPack()
@@ -114,6 +129,24 @@ export default function PackDetailPage() {
       toast.error('Failed to fork pack')
     } finally {
       setForking(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!pack) return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/packs/${pack.id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to delete')
+      }
+      toast.success('Pack deleted')
+      router.push('/')
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete pack')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -322,6 +355,56 @@ export default function PackDetailPage() {
           >
             <LinkIcon className="h-4 w-4" />
           </Button>
+
+          {isOwner && (
+            <>
+              <Separator orientation="vertical" className="h-6" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-violet-500/30 hover:border-violet-500/50 hover:bg-violet-500/10"
+                onClick={() => router.push(`/packs/${pack.id}/edit`)}
+              >
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-red-500/30 text-red-600 hover:border-red-500/50 hover:bg-red-500/10"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete this pack?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete &ldquo;{pack.title}&rdquo; and all its sources,
+                      takeaways, and thanks. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      {deleting ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Deleting...</>
+                      ) : (
+                        'Delete Pack'
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
         </div>
       </div>
 
