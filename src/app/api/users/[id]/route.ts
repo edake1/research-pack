@@ -11,16 +11,23 @@ export async function GET(
 
     const user = await prisma.user.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        bio: true,
+        createdAt: true,
         packs: {
-          where: { forkedById: null }, // Only original packs
+          where: { forkedById: null },
           include: {
+            creator: { select: { id: true, name: true, image: true } },
             _count: { select: { sources: true, thanks: true } }
           },
           orderBy: { createdAt: 'desc' }
         },
         forkedPacks: {
           include: {
+            creator: { select: { id: true, name: true, image: true } },
             forkedFrom: {
               select: { id: true, title: true }
             },

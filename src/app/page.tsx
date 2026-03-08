@@ -77,10 +77,12 @@ function HomeContent() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState(query)
   const [mounted, setMounted] = useState(false)
+  const [stats, setStats] = useState({ packs: 0, contributors: 0, sources: 0 })
 
   useEffect(() => {
     setMounted(true)
     fetchPacks(query)
+    fetch('/api/stats').then(r => r.json()).then(setStats).catch(() => {})
   }, [query])
 
   const fetchPacks = async (q: string) => {
@@ -189,7 +191,11 @@ function HomeContent() {
 
         {/* Stats */}
         <div className="relative flex justify-center gap-12 pt-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-700 delay-300">
-          {stats.map((stat, index) => (
+          {[
+            { label: 'Research Packs', value: stats.packs, icon: BookOpen },
+            { label: 'Contributors', value: stats.contributors, icon: Users },
+            { label: 'Curated Sources', value: stats.sources, icon: Star },
+          ].map((stat) => (
             <div key={stat.label} className="text-center group">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <stat.icon className="h-4 w-4 text-violet-500" />
