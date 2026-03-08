@@ -183,43 +183,40 @@ function HomeContent() {
 
         {/* Search */}
         <form onSubmit={handleSearch} className="relative max-w-xl mx-auto animate-in fade-in-0 slide-in-from-bottom-4 duration-700 delay-200">
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl blur-lg opacity-15 group-hover:opacity-25 transition-opacity" />
-            <div className="relative flex items-center bg-background rounded-xl border border-border/50 shadow-xl">
-              <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search for research packs... (e.g., machine learning, climate change)"
-                className="flex-1 h-14 pl-12 pr-2 text-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button
-                type="submit"
-                size="lg"
-                className="mr-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
-              >
-                Search
-              </Button>
-            </div>
+          <div className="flex items-center bg-background rounded-xl border border-border/50 shadow-lg">
+            <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search research packs..."
+              className="flex-1 h-12 pl-12 pr-2 text-base border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Button
+              type="submit"
+              size="default"
+              className="mr-1.5"
+            >
+              Search
+            </Button>
           </div>
         </form>
 
         {/* Stats */}
-        <div className="relative flex justify-center gap-12 pt-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-700 delay-300">
+        <div className="flex justify-center gap-10 pt-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-700 delay-300">
           {[
             { label: 'Research Packs', value: stats.packs, icon: BookOpen },
             { label: 'Contributors', value: stats.contributors, icon: Users },
             { label: 'Curated Sources', value: stats.sources, icon: Star },
           ].map((stat) => (
-            <div key={stat.label} className="text-center group">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <stat.icon className="h-4 w-4 text-violet-500" />
-                <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 bg-clip-text text-transparent">
+            <div key={stat.label} className="text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                <stat.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xl font-semibold">
                   {stat.value}
                 </span>
               </div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
+              <div className="text-xs text-muted-foreground">{stat.label}</div>
             </div>
           ))}
         </div>

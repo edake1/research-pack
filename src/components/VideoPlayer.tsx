@@ -58,11 +58,12 @@ export function VideoPlayer({ url, title, notes }: VideoPlayerProps) {
         <div className="w-full max-w-5xl aspect-video rounded-xl overflow-hidden">
           {youtubeId && (
             <iframe
-              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+              src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
               title={title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               className="w-full h-full"
+              referrerPolicy="strict-origin-when-cross-origin"
             />
           )}
           {vimeoId && (
@@ -86,20 +87,12 @@ export function VideoPlayer({ url, title, notes }: VideoPlayerProps) {
         <div className="aspect-video">
           {youtubeId && (
             <iframe
-              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+              src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
               title={title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               className="w-full h-full"
-            />
-          )}
-          {vimeoId && (
-            <iframe
-              src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1`}
-              title={title}
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full"
+              referrerPolicy="strict-origin-when-cross-origin"
             />
           )}
         </div>
@@ -137,7 +130,7 @@ export function VideoPlayer({ url, title, notes }: VideoPlayerProps) {
   // Thumbnail / preview state
   return (
     <div
-      className="group cursor-pointer rounded-xl overflow-hidden border border-border/50 hover:border-violet-500/30 transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/5"
+      className="group cursor-pointer rounded-xl overflow-hidden border border-border/50 hover:border-border transition-all duration-200"
       onClick={() => setIsPlaying(true)}
     >
       <div className="relative aspect-video">
@@ -161,7 +154,7 @@ export function VideoPlayer({ url, title, notes }: VideoPlayerProps) {
         {/* Play button */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-14 h-14 rounded-full bg-white/90 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-200">
-            <Play className="h-6 w-6 ml-0.5 fill-violet-600 text-violet-600 dark:fill-white dark:text-white" />
+            <Play className="h-6 w-6 ml-0.5 fill-current text-black dark:text-white" />
           </div>
         </div>
 

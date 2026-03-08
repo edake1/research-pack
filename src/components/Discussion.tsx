@@ -179,7 +179,7 @@ export function Discussion({ packId }: DiscussionProps) {
                 placeholder="Add to the discussion..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="min-h-[80px] resize-none bg-muted/30 border-border/50 focus:border-violet-500/30 text-sm"
+                className="min-h-[80px] resize-none bg-muted/30 border-border/50 focus-visible:ring-1 focus-visible:ring-ring text-sm"
               />
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">
@@ -293,7 +293,7 @@ export function Discussion({ packId }: DiscussionProps) {
                           placeholder={`Reply to ${comment.user.name}...`}
                           value={replyContent}
                           onChange={(e) => setReplyContent(e.target.value)}
-                          className="min-h-[60px] resize-none text-sm bg-muted/30 border-border/50 focus:border-violet-500/30"
+                          className="min-h-[60px] resize-none text-sm bg-muted/30 border-border/50 focus-visible:ring-1 focus-visible:ring-ring"
                           autoFocus
                         />
                         <div className="flex items-center gap-2 justify-end">
