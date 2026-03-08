@@ -1,0 +1,108 @@
+// ResearchPack - Prisma Schema
+// A platform where research processes are packaged, shared, forked, and credited
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User - Researchers who create and fork packs
+model User {
+  id            String        @id @default(cuid())
+  name          String
+  email         String        @unique
+  avatar        String?
+  bio           String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  packs         ResearchPack[]      @relation("UserPacks")
+  forkedPacks   ResearchPack[]      @relation("UserForks")
+  thanksGiven   Thanks[]
+
+  @@map("users")
+}
+
+// ResearchPack - The core unit: a curated collection of sources and takeaways
+model ResearchPack {
+  id            String      @id @default(cuid())
+  title         String
+  description   String
+  topic         String      // Main topic/category
+  tags          String      // Comma-separated tags
+  viewCount     Int         @default(0)
+  thanksCount   Int         @default(0)
+  forkCount     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  creatorId     String
+  creator       User        @relation("UserPacks", fields: [creatorId], references: [id])
+  
+  // Fork relationship
+  forkedFromId  String?
+  forkedFrom    ResearchPack?  @relation("PackForks", fields: [forkedFromId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  forks         ResearchPack[] @relation("PackForks")
+  
+  // User who forked (if this is a fork)
+  forkedById    String?
+  forkedBy      User?       @relation("UserForks", fields: [forkedById], references: [id])
+
+  sources       Source[]
+  takeaways     Takeaway[]
+  thanks        Thanks[]
+
+  @@map("research_packs")
+}
+
+// Source - Individual sources within a pack (articles, videos, papers, etc.)
+model Source {
+  id              String        @id @default(cuid())
+  url             String
+  title           String
+  type            String        // article, video, paper, book, podcast, etc.
+  notes           String?       // User's notes about this source
+  relevanceRating Int?          // 1-5 rating of how useful this source was
+  createdAt       DateTime      @default(now())
+  
+  // Relations
+  packId          String
+  pack            ResearchPack  @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  @@map("sources")
+}
+
+// Takeaway - Key insights/conclusions from the research
+model Takeaway {
+  id        String        @id @default(cuid())
+  content   String
+  order     Int           @default(0)
+  createdAt DateTime      @default(now())
+  
+  // Relations
+  packId    String
+  pack      ResearchPack  @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  @@map("takeaways")
+}
+
+// Thanks - Many-to-many relationship for users thanking pack creators
+model Thanks {
+  id        String        @id @default(cuid())
+  createdAt DateTime      @default(now())
+  
+  // Relations
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  packId    String
+  pack      ResearchPack  @relation(fields: [packId], references: [id])
+
+  @@unique([userId, packId]) // A user can only thank a pack once
+  @@map("thanks")
+}
