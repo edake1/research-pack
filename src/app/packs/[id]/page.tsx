@@ -20,6 +20,7 @@ import {
   Loader2,
   Check,
   FileText,
+  Video,
   Zap,
   Sparkles,
   Bookmark,
@@ -432,7 +433,7 @@ export default function PackDetailPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-red-500/10">
-                <FileText className="h-4 w-4 text-red-500" />
+                <Video className="h-4 w-4 text-red-500" />
               </div>
               Videos
               <Badge variant="secondary" className="ml-2">{videoSources.length}</Badge>

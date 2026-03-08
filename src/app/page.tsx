@@ -1,7 +1,7 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState, useCallback } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { PackCard } from '@/components/PackCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,12 +18,6 @@ import {
   Star,
   TrendingUp,
   Loader2,
-  Brain,
-  Globe,
-  Rocket,
-  Atom,
-  TrendingUp as ChartUp,
-  Dna
 } from 'lucide-react'
 
 interface Pack {
@@ -50,12 +44,12 @@ interface Pack {
 }
 
 const categories = [
-  { name: 'Artificial Intelligence', icon: Brain, gradient: 'from-violet-500 to-purple-600', iconColor: 'text-violet-400' },
-  { name: 'Climate Science', icon: Globe, gradient: 'from-emerald-500 to-green-600', iconColor: 'text-emerald-400' },
-  { name: 'Space Exploration', icon: Rocket, gradient: 'from-blue-500 to-indigo-600', iconColor: 'text-blue-400' },
-  { name: 'Quantum Computing', icon: Atom, gradient: 'from-purple-500 to-pink-600', iconColor: 'text-purple-400' },
-  { name: 'Finance & ML', icon: ChartUp, gradient: 'from-amber-500 to-orange-600', iconColor: 'text-amber-400' },
-  { name: 'Biology', icon: Dna, gradient: 'from-teal-500 to-cyan-600', iconColor: 'text-teal-400' },
+  { name: 'Artificial Intelligence' },
+  { name: 'Climate Science' },
+  { name: 'Space Exploration' },
+  { name: 'Quantum Computing' },
+  { name: 'Finance & ML' },
+  { name: 'Biology' },
 ]
 
 const stats = [
@@ -86,12 +80,17 @@ function HomeContent() {
   const [searchQuery, setSearchQuery] = useState(query)
   const [mounted, setMounted] = useState(false)
   const [stats, setStats] = useState({ packs: 0, contributors: 0, sources: 0 })
+  const [topics, setTopics] = useState<{ name: string; count: number }[]>([])
   const PAGE_SIZE = 12
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
     fetchPacks(query)
-    fetch('/api/stats').then(r => r.json()).then(setStats).catch(() => {})
+    fetch('/api/stats').then(r => r.json()).then(data => {
+      setStats(data)
+      if (data.topics) setTopics(data.topics)
+    }).catch(() => {})
   }, [query])
 
   const fetchPacks = async (q: string, offset = 0) => {
@@ -119,7 +118,7 @@ function HomeContent() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      window.location.href = `/?q=${encodeURIComponent(searchQuery.trim())}`
+      router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
 
@@ -226,30 +225,25 @@ function HomeContent() {
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Topics */}
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Browse by Topic</h2>
-          <Button variant="ghost" className="text-violet-600 hover:text-violet-700">
-            View all <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((cat, index) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {(topics.length > 0 ? topics : categories.map(c => ({ name: c.name, count: 0 }))).slice(0, 12).map((topic, index) => (
             <button
-              key={cat.name}
+              key={topic.name}
               onClick={() => {
-                setSearchQuery(cat.name)
-                window.location.href = `/?q=${encodeURIComponent(cat.name)}`
+                setSearchQuery(topic.name)
+                router.push(`/?q=${encodeURIComponent(topic.name)}`)
               }}
-              className="group relative p-5 rounded-2xl border border-border/50 bg-card hover:border-violet-500/50 transition-all duration-300 text-left overflow-hidden animate-in fade-in-0 slide-in-from-bottom-4"
-              style={{ animationDelay: `${index * 50}ms` }}
+              className="group relative p-4 rounded-xl border border-border/50 bg-card/50 hover:border-violet-500/40 hover:bg-violet-500/5 transition-all duration-200 text-left"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center mb-3 shadow-sm`}>
-                <cat.icon className="h-5 w-5 text-white" />
-              </div>
-              <p className="font-medium text-sm">{cat.name}</p>
+              <p className="font-medium text-sm truncate">{topic.name}</p>
+              {topic.count > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">{topic.count} pack{topic.count !== 1 ? 's' : ''}</p>
+              )}
             </button>
           ))}
         </div>
@@ -305,7 +299,7 @@ function HomeContent() {
                     </div>
                     <Button
                       className="ml-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25"
-                      onClick={() => window.location.href = `/packs/${packs[0].id}`}
+                      onClick={() => router.push(`/packs/${packs[0].id}`)}
                     >
                       View Pack
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -355,7 +349,7 @@ function HomeContent() {
             {query ? `Results for "${query}"` : 'Recent Research Packs'}
           </h2>
           {query && (
-            <Button variant="ghost" onClick={() => window.location.href = '/'}>
+            <Button variant="ghost" onClick={() => router.push('/')}>
               Clear search
             </Button>
           )}
@@ -418,49 +412,23 @@ function HomeContent() {
       </section>
 
       {/* How It Works */}
-      <section className="space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-2">How It Works</h2>
-          <p className="text-muted-foreground">Three simple steps to better research</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8">
+      <section className="rounded-xl border border-border/50 bg-card/50 p-6 md:p-8">
+        <h2 className="text-lg font-semibold mb-4">How It Works</h2>
+        <div className="grid md:grid-cols-3 gap-4">
           {[
-            {
-              step: '1',
-              title: 'Discover',
-              description: 'Search for research packs on any topic. Find curated sources, notes, and key takeaways.',
-              icon: BookOpen,
-              color: 'from-violet-500 to-purple-600',
-            },
-            {
-              step: '2',
-              title: 'Fork & Improve',
-              description: 'Found a pack useful? Fork it and add your own findings. The original creator gets credit.',
-              icon: GitFork,
-              color: 'from-indigo-500 to-blue-600',
-            },
-            {
-              step: '3',
-              title: 'Share',
-              description: 'Create your own packs and share your research journey. Help others learn faster.',
-              icon: Users,
-              color: 'from-purple-500 to-pink-600',
-            },
-          ].map((item, index) => (
-            <Card
-              key={item.step}
-              className="relative overflow-hidden border-border/50 bg-gradient-to-br from-background to-muted/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 animate-in fade-in-0 slide-in-from-bottom-4"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${item.color} opacity-5 blur-2xl`} />
-              <CardContent className="relative p-6">
-                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} text-white font-bold text-lg mb-4 shadow-lg`}>
-                  {item.step}
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p className="text-muted-foreground">{item.description}</p>
-              </CardContent>
-            </Card>
+            { step: '1', title: 'Discover', desc: 'Search packs on any topic — curated sources, notes, and key takeaways.', icon: BookOpen },
+            { step: '2', title: 'Fork & Improve', desc: 'Fork useful packs and add your findings. Original creators get credit.', icon: GitFork },
+            { step: '3', title: 'Share', desc: 'Create packs and share your research journey. Help others learn faster.', icon: Users },
+          ].map((item) => (
+            <div key={item.step} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+              <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400 text-sm font-bold">
+                {item.step}
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-sm font-medium mb-0.5">{item.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
           ))}
         </div>
       </section>

@@ -1,10 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Play, X, ExternalLink, Maximize2 } from 'lucide-react'
+import { Play, X, ExternalLink, Maximize2, Video } from 'lucide-react'
 
 interface VideoPlayerProps {
   url: string
@@ -17,7 +16,6 @@ function getYouTubeId(url: string): string | null {
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
     /youtube\.com\/shorts\/([^&\n?#]+)/,
   ]
-
   for (const pattern of patterns) {
     const match = url.match(pattern)
     if (match) return match[1]
@@ -33,41 +31,38 @@ function getVimeoId(url: string): string | null {
 export function VideoPlayer({ url, title, notes }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
+  const [thumbError, setThumbError] = useState(false)
 
   const youtubeId = getYouTubeId(url)
   const vimeoId = getVimeoId(url)
-
   const isVideo = youtubeId || vimeoId
 
-  if (!isVideo) {
-    return null
-  }
+  if (!isVideo) return null
 
   const thumbnailUrl = youtubeId
-    ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+    ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
     : null
 
-  if (isPlaying) {
+  // Expanded fullscreen overlay
+  if (isPlaying && isExpanded) {
     return (
-      <Card className={`overflow-hidden bg-black ${isExpanded ? 'fixed inset-4 z-50 rounded-2xl' : ''}`}>
-        <div className="relative">
-          {isExpanded && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2 z-10 bg-black/50 hover:bg-black/70 text-white"
-              onClick={() => setIsExpanded(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+      <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white rounded-full"
+          onClick={() => { setIsExpanded(false); setIsPlaying(false) }}
+        >
+          <X className="h-5 w-5" />
+        </Button>
+        <div className="w-full max-w-5xl aspect-video rounded-xl overflow-hidden">
           {youtubeId && (
             <iframe
               src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
               title={title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              className={`w-full ${isExpanded ? 'h-full' : 'aspect-video'}`}
+              className="w-full h-full"
             />
           )}
           {vimeoId && (
@@ -76,67 +71,128 @@ export function VideoPlayer({ url, title, notes }: VideoPlayerProps) {
               title={title}
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
-              className={`w-full ${isExpanded ? 'h-full' : 'aspect-video'}`}
+              className="w-full h-full"
             />
           )}
         </div>
-      </Card>
+      </div>
     )
   }
 
-  return (
-    <Card className="overflow-hidden group cursor-pointer card-hover" onClick={() => setIsPlaying(true)}>
-      <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-gray-800">
-        {thumbnailUrl && (
-          <img
-            src={thumbnailUrl}
-            alt={title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-        {/* Play button */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative">
-            <div className="absolute inset-0 bg-violet-500 blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+  // Inline playing
+  if (isPlaying) {
+    return (
+      <div className="rounded-xl overflow-hidden border border-border/50 bg-black">
+        <div className="aspect-video">
+          {youtubeId && (
+            <iframe
+              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            />
+          )}
+          {vimeoId && (
+            <iframe
+              src={`https://player.vimeo.com/video/${vimeoId}?autoplay=1`}
+              title={title}
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            />
+          )}
+        </div>
+        <div className="flex items-center justify-between px-4 py-3 bg-card border-t border-border/50">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium truncate">{title}</p>
+            {notes && <p className="text-xs text-muted-foreground truncate mt-0.5">{notes}</p>}
+          </div>
+          <div className="flex gap-1 ml-3 shrink-0">
             <Button
-              size="lg"
-              className="relative bg-violet-600 hover:bg-violet-700 rounded-full w-16 h-16 shadow-2xl shadow-violet-500/50 group-hover:scale-110 transition-transform"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => { setIsExpanded(true) }}
+              title="Expand"
             >
-              <Play className="h-7 w-7 ml-1 fill-white" />
+              <Maximize2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              asChild
+            >
+              <a href={url} target="_blank" rel="noopener noreferrer" title="Open original">
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
             </Button>
           </div>
         </div>
+      </div>
+    )
+  }
 
-        {/* Title overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h4 className="text-white font-medium line-clamp-2">{title}</h4>
-          {notes && (
-            <p className="text-white/70 text-sm mt-1 line-clamp-1">{notes}</p>
-          )}
+  // Thumbnail / preview state
+  return (
+    <div
+      className="group cursor-pointer rounded-xl overflow-hidden border border-border/50 hover:border-violet-500/30 transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/5"
+      onClick={() => setIsPlaying(true)}
+    >
+      <div className="relative aspect-video">
+        {/* Thumbnail or fallback */}
+        {thumbnailUrl && !thumbError ? (
+          <img
+            src={thumbnailUrl}
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            onError={() => setThumbError(true)}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-violet-950 via-indigo-950 to-slate-900 flex items-center justify-center">
+            <Video className="h-12 w-12 text-violet-400/40" />
+          </div>
+        )}
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/10 group-hover:from-black/80" />
+
+        {/* Play button */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full bg-white/90 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-200">
+            <Play className="h-6 w-6 ml-0.5 fill-violet-600 text-violet-600 dark:fill-white dark:text-white" />
+          </div>
         </div>
+
+        {/* Platform badge */}
+        <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm hover:bg-black/70 border-0 text-white text-[10px] px-2 py-0.5">
+          {youtubeId ? 'YouTube' : 'Vimeo'}
+        </Badge>
 
         {/* Expand button */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-2.5 right-2.5 h-7 w-7 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={(e) => {
             e.stopPropagation()
             setIsPlaying(true)
             setIsExpanded(true)
           }}
         >
-          <Maximize2 className="h-4 w-4" />
+          <Maximize2 className="h-3.5 w-3.5" />
         </Button>
 
-        {/* Platform badge */}
-        <Badge className="absolute top-2 left-2 bg-red-600 hover:bg-red-700 border-0">
-          {youtubeId ? 'YouTube' : 'Vimeo'}
-        </Badge>
+        {/* Bottom info */}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <h4 className="text-white font-medium text-sm line-clamp-2 leading-snug">{title}</h4>
+          {notes && (
+            <p className="text-white/60 text-xs mt-1 line-clamp-1">{notes}</p>
+          )}
+        </div>
       </div>
-    </Card>
+    </div>
   )
 }
 
