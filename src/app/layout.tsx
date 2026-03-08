@@ -8,8 +8,8 @@ import { Providers } from '@/components/Providers'
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
 export const metadata: Metadata = {
-  title: 'ResearchPack - Make Research Reusable',
-  description: 'A platform where research processes are packaged, shared, forked, and credited.',
+  title: 'Lumen — Make Research Reusable',
+  description: 'A platform where research is packaged, shared, forked, and credited.',
 }
 
 export default function RootLayout({

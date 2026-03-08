@@ -1,4 +1,4 @@
-# ResearchPack
+# Lumen
 
 > **Make research reusable, not repetitive.**
 
@@ -37,8 +37,8 @@ Someone packages their research journey — sources, notes, dead-ends, conclusio
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/ResearchPack.git
-cd ResearchPack
+git clone https://github.com/edake1/research-pack.git
+cd research-pack
 
 # Install dependencies
 bun install
@@ -101,11 +101,14 @@ See [.env.example](.env.example) for all required variables.
 - [x] AI full pack generation
 - [x] User profiles with stats
 - [x] Video embed player
-- [x] Theme system (dark/light + accent colors)
-- [ ] Authentication (Auth.js + OAuth)
+- [x] Theme system (dark/light)
+- [x] Authentication (Auth.js v5 + GitHub OAuth)
+- [x] Vercel AI SDK integration
+- [x] Comments & discussions
+- [x] Edit/delete packs with ownership checks
+- [x] Pagination (Load More)
+- [x] Custom 404 page
 - [ ] PostgreSQL migration (Neon)
-- [ ] Vercel AI SDK integration
-- [ ] Comments & discussions
 - [ ] Bookmarks / saved packs
 - [ ] Pack export (PDF, Markdown)
 - [ ] Full-text search

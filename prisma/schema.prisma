@@ -1,4 +1,4 @@
-// ResearchPack - Prisma Schema
+// Lumen - Prisma Schema
 // A platform where research processes are packaged, shared, forked, and credited
 
 generator client {
@@ -72,6 +72,7 @@ model User {
   packs         ResearchPack[]      @relation("UserPacks")
   forkedPacks   ResearchPack[]      @relation("UserForks")
   thanksGiven   Thanks[]
+  comments      Comment[]
 
   @@map("users")
 }
@@ -105,6 +106,7 @@ model ResearchPack {
   sources       Source[]
   takeaways     Takeaway[]
   thanks        Thanks[]
+  comments      Comment[]
 
   @@map("research_packs")
 }
@@ -153,4 +155,25 @@ model Thanks {
 
   @@unique([userId, packId]) // A user can only thank a pack once
   @@map("thanks")
+}
+
+// Comment - Discussion threads on packs
+model Comment {
+  id        String    @id @default(cuid())
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  packId    String
+  pack      ResearchPack @relation(fields: [packId], references: [id], onDelete: Cascade)
+
+  // Reply threading
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies   Comment[] @relation("CommentReplies")
+
+  @@map("comments")
 }

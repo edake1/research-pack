@@ -41,7 +41,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between gap-2 sm:gap-4">
+      <div className="container px-6 md:px-8 flex h-16 items-center justify-between gap-2 sm:gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
           <div className="relative">
@@ -51,7 +51,7 @@ export function Header() {
             </div>
           </div>
           <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent">
-            ResearchPack
+            Lumen
           </span>
         </Link>
 

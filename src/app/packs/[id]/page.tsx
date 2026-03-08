@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { SourceItem } from '@/components/SourceItem'
+import { Discussion } from '@/components/Discussion'
 import {
   Eye,
   Heart,
@@ -493,6 +494,9 @@ export default function PackDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Discussion */}
+      <Discussion packId={pack.id} />
 
       {/* AI Improve Suggestion */}
       <Card className="border-dashed border-violet-500/30 bg-violet-500/5">
