@@ -74,10 +74,13 @@ function HomeContent() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') || ''
   const [packs, setPacks] = useState<Pack[]>([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [searchQuery, setSearchQuery] = useState(query)
   const [mounted, setMounted] = useState(false)
   const [stats, setStats] = useState({ packs: 0, contributors: 0, sources: 0 })
+  const PAGE_SIZE = 12
 
   useEffect(() => {
     setMounted(true)
@@ -85,17 +88,25 @@ function HomeContent() {
     fetch('/api/stats').then(r => r.json()).then(setStats).catch(() => {})
   }, [query])
 
-  const fetchPacks = async (q: string) => {
-    setLoading(true)
+  const fetchPacks = async (q: string, offset = 0) => {
+    if (offset === 0) setLoading(true)
+    else setLoadingMore(true)
     try {
-      const url = q ? `/api/packs?q=${encodeURIComponent(q)}` : '/api/packs'
-      const res = await fetch(url)
+      const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(offset) })
+      if (q) params.set('q', q)
+      const res = await fetch(`/api/packs?${params}`)
       const data = await res.json()
-      setPacks(data.packs || [])
+      if (offset === 0) {
+        setPacks(data.packs || [])
+      } else {
+        setPacks(prev => [...prev, ...(data.packs || [])])
+      }
+      setTotal(data.total || 0)
     } catch (error) {
       console.error('Failed to fetch packs:', error)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }
 
@@ -366,6 +377,7 @@ function HomeContent() {
             </CardContent>
           </Card>
         ) : (
+          <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {packs.slice(query ? 0 : 1).map((pack, index) => (
               <div
@@ -377,6 +389,23 @@ function HomeContent() {
               </div>
             ))}
           </div>
+          {packs.length < total && (
+            <div className="flex justify-center pt-6">
+              <Button
+                variant="outline"
+                className="border-violet-500/30 hover:border-violet-500/50 hover:bg-violet-500/10"
+                onClick={() => fetchPacks(query, packs.length)}
+                disabled={loadingMore}
+              >
+                {loadingMore ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Loading...</>
+                ) : (
+                  `Load More (${packs.length} of ${total})`
+                )}
+              </Button>
+            </div>
+          )}
+          </>
         )}
       </section>
 
