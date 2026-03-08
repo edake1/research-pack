@@ -11,6 +11,9 @@ import { SourceItem } from '@/components/SourceItem'
 import { Discussion } from '@/components/Discussion'
 import { Suggestions } from '@/components/Suggestions'
 import { ForkDiff } from '@/components/ForkDiff'
+import { ForkTree } from '@/components/ForkTree'
+import { ImpactScore } from '@/components/ImpactScore'
+import { KnowledgeGraph } from '@/components/KnowledgeGraph'
 import { TagGlossary } from '@/components/TagGlossary'
 import {
   Eye,
@@ -299,6 +302,12 @@ export default function PackDetailPage() {
               <GitFork className="h-4 w-4" />
               <span className="font-medium text-foreground">{pack.forkCount}</span> forks
             </span>
+            <ImpactScore
+              thanksCount={pack.thanksCount}
+              forkCount={pack.forkCount}
+              viewCount={pack.viewCount}
+              sourceCount={pack.sources.length}
+            />
             <span className="flex items-center gap-1.5">
               <Calendar className="h-4 w-4" />
               {new Date(pack.createdAt).toLocaleDateString('en-US', {
@@ -317,8 +326,12 @@ export default function PackDetailPage() {
           ))}
         </div>
 
-        {/* Fork Diff */}
-        {pack.forkedFrom && <ForkDiff packId={pack.id} />}
+        {/* Fork Diff, Tree & Knowledge Graph */}
+        <div className="flex flex-wrap gap-3">
+          {pack.forkedFrom && <ForkDiff packId={pack.id} />}
+          <ForkTree packId={pack.id} forkCount={pack.forkCount} hasParent={!!pack.forkedFrom} />
+          <KnowledgeGraph packId={pack.id} />
+        </div>
 
         {/* Actions */}
         <div className="flex flex-wrap gap-3">

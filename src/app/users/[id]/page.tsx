@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PackCard } from '@/components/PackCard'
 import { ArrowLeft, Loader2, BookOpen, GitFork, Calendar } from 'lucide-react'
+import { UserImpactScore } from '@/components/ImpactScore'
 import { toast } from 'sonner'
 
 interface User {
@@ -167,6 +168,13 @@ export default function UserProfilePage() {
               <div className="text-sm text-muted-foreground">Total Views</div>
             </div>
           </div>
+
+          {/* Impact Score */}
+          {user.packs.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-border/50">
+              <UserImpactScore packs={user.packs} />
+            </div>
+          )}
         </CardContent>
       </Card>
 
