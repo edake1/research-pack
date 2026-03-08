@@ -143,8 +143,8 @@ export function VideoPlayer({ url, title, notes }: VideoPlayerProps) {
             onError={() => setThumbError(true)}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-violet-950 via-indigo-950 to-slate-900 flex items-center justify-center">
-            <Video className="h-12 w-12 text-violet-400/40" />
+          <div className="w-full h-full bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 flex items-center justify-center">
+            <Video className="h-12 w-12 text-muted-foreground/30" />
           </div>
         )}
 

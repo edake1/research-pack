@@ -1,7 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { requireAuth } from '@/lib/auth-utils'
+import { requireAuth, getCurrentUserId } from '@/lib/auth-utils'
 import { notify } from '@/lib/notifications'
+
+// GET /api/packs/[id]/thanks - Check if current user thanked this pack
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const userId = await getCurrentUserId()
+    if (!userId) {
+      return NextResponse.json({ thanked: false })
+    }
+    const { id } = await params
+    const existing = await prisma.thanks.findUnique({
+      where: { userId_packId: { userId, packId: id } }
+    })
+    return NextResponse.json({ thanked: !!existing })
+  } catch {
+    return NextResponse.json({ thanked: false })
+  }
+}
 
 // POST /api/packs/[id]/thanks - Toggle thanks
 export async function POST(

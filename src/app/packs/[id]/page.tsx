@@ -102,7 +102,20 @@ export default function PackDetailPage() {
 
   useEffect(() => {
     fetchPack()
+    checkThanksStatus()
   }, [packId])
+
+  const checkThanksStatus = async () => {
+    try {
+      const res = await fetch(`/api/packs/${packId}/thanks`)
+      if (res.ok) {
+        const data = await res.json()
+        setThanked(data.thanked)
+      }
+    } catch {
+      // ignore
+    }
+  }
 
   const fetchPack = async () => {
     try {
@@ -186,12 +199,9 @@ export default function PackDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center space-y-4">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-violet-500/30 blur-xl animate-pulse" />
-            <Loader2 className="relative h-10 w-10 animate-spin text-violet-600" />
-          </div>
-          <p className="text-muted-foreground">Loading research pack...</p>
+        <div className="text-center space-y-3">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading pack...</p>
         </div>
       </div>
     )
@@ -200,12 +210,10 @@ export default function PackDetailPage() {
   if (!pack) {
     return (
       <div className="text-center py-16">
-        <div className="inline-flex items-center justify-center p-4 rounded-full bg-violet-500/10 mb-4">
-          <FileText className="h-8 w-8 text-violet-500" />
-        </div>
+        <FileText className="h-8 w-8 mx-auto text-muted-foreground/30 mb-3" />
         <h2 className="text-xl font-semibold mb-2">Pack not found</h2>
-        <p className="text-muted-foreground mb-6">This research pack may have been deleted.</p>
-        <Button onClick={() => router.push('/')}>Go Home</Button>
+        <p className="text-sm text-muted-foreground mb-6">This research pack may have been deleted.</p>
+        <Button variant="outline" onClick={() => router.push('/')}>Go Home</Button>
       </div>
     )
   }
@@ -231,13 +239,13 @@ export default function PackDetailPage() {
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 space-y-3">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge className="bg-gradient-to-r from-violet-500 to-indigo-600 text-white border-0">
+              <Badge variant="secondary">
                 {pack.topic}
               </Badge>
               {pack.forkedFrom && (
                 <Badge
                   variant="outline"
-                  className="text-violet-600 dark:text-violet-400 border-violet-500/30"
+                  className="text-muted-foreground border-border/50"
                 >
                   <GitFork className="h-3 w-3 mr-1" />
                   Forked from{' '}
@@ -263,9 +271,9 @@ export default function PackDetailPage() {
             href={`/users/${pack.creator.id}`}
             className="flex items-center gap-3 p-2 -m-2 rounded-xl hover:bg-muted/50 transition-colors"
           >
-            <Avatar className="h-12 w-12 ring-2 ring-violet-500/20">
+            <Avatar className="h-12 w-12 ring-2 ring-border">
               <AvatarImage src={pack.creator.image || undefined} alt={pack.creator.name} />
-              <AvatarFallback className="bg-gradient-to-br from-violet-500 to-indigo-600 text-white font-medium">
+              <AvatarFallback className="bg-muted text-muted-foreground font-medium">
                 {pack.creator.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
@@ -304,13 +312,17 @@ export default function PackDetailPage() {
         {/* Tags */}
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <Badge
+            <Link
               key={tag}
-              variant="outline"
-              className="px-3 py-1 border-border/50 hover:border-violet-500/30 transition-colors"
+              href={`/search?q=${encodeURIComponent(tag)}`}
             >
-              {tag}
-            </Badge>
+              <Badge
+                variant="outline"
+                className="px-3 py-1 border-border/50 hover:bg-muted/50 hover:border-border cursor-pointer transition-colors"
+              >
+                {tag}
+              </Badge>
+            </Link>
           ))}
         </div>
 
@@ -322,11 +334,8 @@ export default function PackDetailPage() {
           <Button
             onClick={handleThanks}
             disabled={thanking}
-            className={`btn-shine ${
-              thanked
-                ? 'bg-green-600 hover:bg-green-700'
-                : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700'
-            }`}
+            variant={thanked ? 'default' : 'default'}
+            className={thanked ? 'bg-green-600 hover:bg-green-700' : ''}
           >
             {thanked ? (
               <>
@@ -344,7 +353,6 @@ export default function PackDetailPage() {
             onClick={handleFork}
             disabled={forking}
             variant="outline"
-            className="border-violet-500/30 hover:border-violet-500/50 hover:bg-violet-500/10"
           >
             {forking ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -379,7 +387,6 @@ export default function PackDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-violet-500/30 hover:border-violet-500/50 hover:bg-violet-500/10"
                 onClick={() => router.push(`/packs/${pack.id}/edit`)}
               >
                 <Pencil className="h-4 w-4 mr-2" />
@@ -427,53 +434,43 @@ export default function PackDetailPage() {
 
       <Separator />
 
-      {/* Video Sources (with embedded player) */}
+      {/* Video Sources */}
       {videoSources.length > 0 && (
-        <Card className="border-border/50 overflow-hidden">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-red-500/10">
-                <Video className="h-4 w-4 text-red-500" />
-              </div>
-              Videos
-              <Badge variant="secondary" className="ml-2">{videoSources.length}</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Video className="h-4 w-4 text-red-500" />
+            <h2 className="font-semibold">Videos</h2>
+            <Badge variant="secondary" className="text-xs">{videoSources.length}</Badge>
+          </div>
+          <div className={videoSources.length === 1 ? '' : 'grid md:grid-cols-2 gap-4'}>
             {videoSources.map((source) => (
               <SourceItem key={source.id} source={source} showInlineVideo={true} />
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Other Sources */}
       {otherSources.length > 0 && (
-        <Card className="border-border/50 overflow-hidden">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-violet-500/10">
-                <FileText className="h-4 w-4 text-violet-500" />
-              </div>
-              Sources
-              <Badge variant="secondary" className="ml-2">{otherSources.length}</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-semibold">Sources</h2>
+            <Badge variant="secondary" className="text-xs">{otherSources.length}</Badge>
+          </div>
+          <div className="space-y-2">
             {otherSources.map((source) => (
               <SourceItem key={source.id} source={source} showInlineVideo={false} />
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Takeaways */}
-      <Card className="border-border/50 overflow-hidden bg-gradient-to-br from-amber-500/5 via-transparent to-orange-500/5">
+      <Card className="border-border/50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-amber-500/10">
-              <Zap className="h-4 w-4 text-amber-500" />
-            </div>
+            <Zap className="h-4 w-4 text-amber-500" />
             Key Takeaways
             <Badge variant="secondary" className="ml-2">{pack.takeaways.length}</Badge>
           </CardTitle>
@@ -490,7 +487,7 @@ export default function PackDetailPage() {
                   key={takeaway.id}
                   className="flex gap-4 items-start group"
                 >
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-white text-sm font-medium shrink-0 shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform">
+                  <span className="flex items-center justify-center w-7 h-7 rounded-full bg-muted text-sm font-medium shrink-0">
                     {index + 1}
                   </span>
                   <p className="text-base leading-relaxed pt-1">{takeaway.content}</p>
@@ -508,12 +505,12 @@ export default function PackDetailPage() {
       <Suggestions packId={pack.id} ownerId={pack.creator.id} />
 
       {/* AI Improve Suggestion */}
-      <Card className="border-dashed border-violet-500/30 bg-violet-500/5">
+      <Card className="border-dashed border-border/50">
         <CardContent className="p-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-violet-500/10">
-                <Sparkles className="h-5 w-5 text-violet-500" />
+              <div className="p-2 rounded-lg bg-muted">
+                <Sparkles className="h-5 w-5 text-muted-foreground" />
               </div>
               <div>
                 <p className="font-medium">Want to improve this pack?</p>
@@ -525,7 +522,6 @@ export default function PackDetailPage() {
             <Button
               onClick={handleFork}
               disabled={forking}
-              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
             >
               <GitFork className="h-4 w-4 mr-2" />
               Fork & Improve

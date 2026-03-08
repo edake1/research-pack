@@ -61,8 +61,17 @@ model User {
   emailVerified DateTime?
   image         String?
   bio           String?
+  website       String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
+  // Preferences
+  publicProfile    Boolean  @default(true)
+  publicEmail      Boolean  @default(false)
+  notifyThanks     Boolean  @default(true)
+  notifyForks      Boolean  @default(true)
+  notifyComments   Boolean  @default(true)
+  notifySuggestions Boolean  @default(true)
 
   // Auth relations
   accounts      Account[]

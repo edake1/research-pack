@@ -17,7 +17,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { Search, Plus, BookOpen, Sparkles, LogIn, LogOut, User, Menu } from 'lucide-react'
+import { Search, Plus, BookOpen, Sparkles, LogIn, LogOut, User, Menu, Settings } from 'lucide-react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -33,7 +33,7 @@ export function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`)
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
       setMobileMenuOpen(false)
     }
   }
@@ -119,6 +119,10 @@ export function Header() {
                 <DropdownMenuItem onClick={() => router.push(`/users/${(user as any).id}`)}>
                   <User className="h-4 w-4 mr-2" />
                   My Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/settings')}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })}>
@@ -214,6 +218,7 @@ export function Header() {
                     <span className="font-medium">AI Generate</span>
                   </Link>
                   {user && (
+                    <>
                     <Link
                       href={`/users/${(user as any).id}`}
                       onClick={() => setMobileMenuOpen(false)}
@@ -222,6 +227,15 @@ export function Header() {
                       <User className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium">My Profile</span>
                     </Link>
+                    <Link
+                      href="/settings"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <Settings className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Settings</span>
+                    </Link>
+                    </>
                   )}
                 </div>
 
