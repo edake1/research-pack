@@ -115,7 +115,12 @@ export default function PackDetailPage() {
   }
 
   const handleFork = async () => {
-    if (!pack || !currentUserId) return
+    if (!pack) return
+    if (!currentUserId) {
+      toast.info('Sign in to fork packs')
+      router.push('/auth/signin')
+      return
+    }
     setForking(true)
     try {
       const res = await fetch(`/api/packs/${pack.id}/fork`, {
@@ -151,7 +156,12 @@ export default function PackDetailPage() {
   }
 
   const handleThanks = async () => {
-    if (!pack || !currentUserId) return
+    if (!pack) return
+    if (!currentUserId) {
+      toast.info('Sign in to thank creators')
+      router.push('/auth/signin')
+      return
+    }
     setThanking(true)
     try {
       const res = await fetch(`/api/packs/${pack.id}/thanks`, {

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,9 +21,24 @@ const suggestions = [
 
 export default function AIGeneratePage() {
   const router = useRouter()
+  const { status } = useSession()
   const [topic, setTopic] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedPack, setGeneratedPack] = useState<any>(null)
+
+  useEffect(() => {
+    if (status === 'unauthenticated') router.push('/auth/signin')
+  }, [status, router])
+
+  if (status === 'loading') {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated') return null
 
   const handleGenerate = async (topicToGenerate?: string) => {
     const finalTopic = topicToGenerate || topic
