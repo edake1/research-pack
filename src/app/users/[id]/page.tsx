@@ -15,7 +15,7 @@ interface User {
   id: string
   name: string
   email: string
-  avatar: string | null
+  image: string | null
   bio: string | null
   createdAt: string
   packs: Array<{
@@ -27,7 +27,7 @@ interface User {
     viewCount: number
     thanksCount: number
     forkCount: number
-    creator: { id: string; name: string; avatar: string | null }
+    creator: { id: string; name: string; image: string | null }
     _count: { sources: number; thanks: number }
   }>
   forkedPacks: Array<{
@@ -39,7 +39,7 @@ interface User {
     viewCount: number
     thanksCount: number
     forkCount: number
-    creator: { id: string; name: string; avatar: string | null }
+    creator: { id: string; name: string; image: string | null }
     forkedFrom: { id: string; title: string } | null
     _count: { sources: number }
   }>
@@ -120,7 +120,7 @@ export default function UserProfilePage() {
           {/* Avatar */}
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12 sm:-mt-10">
             <Avatar className="h-24 w-24 ring-4 ring-background shadow-xl">
-              <AvatarImage src={user.avatar || undefined} alt={user.name} />
+              <AvatarImage src={user.image || undefined} alt={user.name} />
               <AvatarFallback className="text-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white">
                 {user.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>

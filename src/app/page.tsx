@@ -32,7 +32,7 @@ interface Pack {
   creator: {
     id: string
     name: string
-    avatar: string | null
+    image: string | null
   }
   _count: {
     sources: number

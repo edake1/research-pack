@@ -19,7 +19,7 @@ interface PackCardProps {
     creator: {
       id: string
       name: string
-      avatar: string | null
+      image: string | null
     }
     _count?: {
       sources: number
@@ -120,7 +120,7 @@ export function PackCard({ pack, featured = false }: PackCardProps) {
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2">
               <Avatar className="h-7 w-7 ring-2 ring-background">
-                <AvatarImage src={pack.creator.avatar || undefined} alt={pack.creator.name} />
+                <AvatarImage src={pack.creator.image || undefined} alt={pack.creator.name} />
                 <AvatarFallback className="text-xs bg-gradient-to-br from-violet-500 to-indigo-600 text-white">
                   {pack.creator.name.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>

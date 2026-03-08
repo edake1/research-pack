@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/Header'
 import { Toaster } from '@/components/ui/sonner'
-import { ThemeProvider } from '@/components/theme-provider'
+import { Providers } from '@/components/Providers'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -20,12 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <Providers>
           <div className="relative min-h-screen bg-background">
             {/* Background gradient decoration */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -42,7 +37,7 @@ export default function RootLayout({
             </div>
           </div>
           <Toaster position="bottom-right" />
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )

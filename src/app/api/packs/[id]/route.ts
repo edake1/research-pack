@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { requireAuth } from '@/lib/auth-utils'
 
 // GET /api/packs/[id] - Get single pack
 export async function GET(
@@ -13,7 +14,7 @@ export async function GET(
       where: { id },
       include: {
         creator: {
-          select: { id: true, name: true, avatar: true, bio: true }
+          select: { id: true, name: true, image: true, bio: true }
         },
         sources: {
           orderBy: { createdAt: 'asc' }
@@ -57,9 +58,13 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireAuth()
+    if (authResult.error) return authResult.error
+    const userId = authResult.userId
+
     const { id } = await params
     const body = await request.json()
-    const { title, description, topic, tags, sources, takeaways, creatorId } = body
+    const { title, description, topic, tags, sources, takeaways } = body
 
     const existingPack = await prisma.researchPack.findUnique({
       where: { id },
@@ -70,7 +75,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Pack not found' }, { status: 404 })
     }
 
-    if (existingPack.creatorId !== creatorId) {
+    if (existingPack.creatorId !== userId) {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 })
     }
 
@@ -119,9 +124,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireAuth()
+    if (authResult.error) return authResult.error
+    const userId = authResult.userId
+
     const { id } = await params
-    const { searchParams } = new URL(request.url)
-    const creatorId = searchParams.get('creatorId')
 
     const existingPack = await prisma.researchPack.findUnique({
       where: { id },
@@ -132,7 +139,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Pack not found' }, { status: 404 })
     }
 
-    if (existingPack.creatorId !== creatorId) {
+    if (existingPack.creatorId !== userId) {
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 })
     }
 

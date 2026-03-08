@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import ZAI from 'z-ai-web-dev-sdk'
+import { generateText } from 'ai'
+import { openai } from '@ai-sdk/openai'
 import prisma from '@/lib/prisma'
+import { requireAuth } from '@/lib/auth-utils'
 
 // POST /api/ai/generate-pack - AI generates a complete research pack
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAuth()
+    if (authResult.error) return authResult.error
+    const creatorId = authResult.userId
+
     const body = await request.json()
-    const { topic, userId } = body
+    const { topic } = body
 
     if (!topic) {
       return NextResponse.json({ error: 'Topic is required' }, { status: 400 })
     }
 
-    // Verify user exists
-    const user = await prisma.user.findFirst()
-    const creatorId = userId || user?.id
-
-    if (!creatorId) {
-      return NextResponse.json({ error: 'No user available' }, { status: 400 })
-    }
-
-    const zai = await ZAI.create()
-
-    const prompt = `You are an expert researcher. Create a comprehensive research pack about "${topic}".
+    const { text } = await generateText({
+      model: openai('gpt-4o-mini'),
+      system:
+        'You are a knowledgeable research assistant that creates comprehensive, well-structured research packs in JSON format. You always provide real, high-quality sources that would genuinely be useful for the topic.',
+      prompt: `You are an expert researcher. Create a comprehensive research pack about "${topic}".
 
 Generate:
 1. A compelling title (not too long)
@@ -54,28 +54,16 @@ Respond in this exact JSON format:
   ]
 }
 
-Only respond with valid JSON, no other text.`
-
-    const completion = await zai.chat.completions.create({
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a knowledgeable research assistant that creates comprehensive, well-structured research packs in JSON format. You always provide real, high-quality sources that would genuinely be useful for the topic.'
-        },
-        { role: 'user', content: prompt }
-      ],
+Only respond with valid JSON, no other text.`,
       temperature: 0.7,
     })
-
-    const content = completion.choices[0]?.message?.content || '{}'
 
     // Parse the JSON response
     let packData
     try {
-      packData = JSON.parse(content)
+      packData = JSON.parse(text)
     } catch {
-      // Try to extract JSON from the response
-      const jsonMatch = content.match(/\{[\s\S]*\}/)
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
         packData = JSON.parse(jsonMatch[0])
       } else {
@@ -92,32 +80,28 @@ Only respond with valid JSON, no other text.`
         tags: packData.tags || topic,
         creatorId,
         sources: {
-          create: (packData.sources || []).map((s: {
-            url: string
-            title: string
-            type: string
-            notes?: string
-            relevanceRating?: number
-          }) => ({
-            url: s.url,
-            title: s.title,
-            type: s.type || 'article',
-            notes: s.notes,
-            relevanceRating: s.relevanceRating,
-          }))
+          create: (packData.sources || []).map(
+            (s: { url: string; title: string; type: string; notes?: string; relevanceRating?: number }) => ({
+              url: s.url,
+              title: s.title,
+              type: s.type || 'article',
+              notes: s.notes,
+              relevanceRating: s.relevanceRating,
+            })
+          ),
         },
         takeaways: {
           create: (packData.takeaways || []).map((t: { content: string }, index: number) => ({
             content: t.content,
             order: index,
-          }))
-        }
+          })),
+        },
       },
       include: {
         creator: true,
         sources: true,
         takeaways: true,
-      }
+      },
     })
 
     return NextResponse.json(pack, { status: 201 })

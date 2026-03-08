@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { requireAuth } from '@/lib/auth-utils'
 
 // POST /api/packs/[id]/thanks - Toggle thanks
 export async function POST(
@@ -7,13 +8,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
-    const body = await request.json()
-    const { userId } = body
+    const authResult = await requireAuth()
+    if (authResult.error) return authResult.error
+    const userId = authResult.userId
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 })
-    }
+    const { id } = await params
 
     // Check if pack exists
     const pack = await prisma.researchPack.findUnique({ where: { id } })

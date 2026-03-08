@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import ZAI from 'z-ai-web-dev-sdk'
+import { generateText } from 'ai'
+import { openai } from '@ai-sdk/openai'
+import { requireAuth } from '@/lib/auth-utils'
 
 // POST /api/ai/suggest-sources - AI suggests sources for a topic
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAuth()
+    if (authResult.error) return authResult.error
+
     const body = await request.json()
     const { topic } = body
 
@@ -11,9 +16,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Topic is required' }, { status: 400 })
     }
 
-    const zai = await ZAI.create()
-
-    const prompt = `You are a research assistant. For the topic "${topic}", suggest 5 high-quality sources that would be valuable for someone researching this topic.
+    const { text } = await generateText({
+      model: openai('gpt-4o-mini'),
+      system: 'You are a helpful research assistant that provides source suggestions in JSON format.',
+      prompt: `You are a research assistant. For the topic "${topic}", suggest 5 high-quality sources that would be valuable for someone researching this topic.
 
 For each source, provide:
 - A realistic title
@@ -31,25 +37,16 @@ Respond in JSON format as an array:
   }
 ]
 
-Only respond with the JSON array, no other text.`
-
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: 'You are a helpful research assistant that provides source suggestions in JSON format.' },
-        { role: 'user', content: prompt }
-      ],
+Only respond with the JSON array, no other text.`,
       temperature: 0.7,
     })
-
-    const content = completion.choices[0]?.message?.content || '[]'
 
     // Parse the JSON response
     let sources
     try {
-      sources = JSON.parse(content)
+      sources = JSON.parse(text)
     } catch {
-      // If parsing fails, try to extract JSON from the response
-      const jsonMatch = content.match(/\[[\s\S]*\]/)
+      const jsonMatch = text.match(/\[[\s\S]*\]/)
       if (jsonMatch) {
         sources = JSON.parse(jsonMatch[0])
       } else {

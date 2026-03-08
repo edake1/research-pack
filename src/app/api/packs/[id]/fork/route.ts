@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { requireAuth } from '@/lib/auth-utils'
 
 // POST /api/packs/[id]/fork - Fork a pack
 export async function POST(
@@ -7,13 +8,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params
-    const body = await request.json()
-    const { userId } = body
+    const authResult = await requireAuth()
+    if (authResult.error) return authResult.error
+    const userId = authResult.userId
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 })
-    }
+    const { id } = await params
 
     // Get original pack
     const originalPack = await prisma.researchPack.findUnique({
@@ -27,12 +26,6 @@ export async function POST(
 
     if (!originalPack) {
       return NextResponse.json({ error: 'Original pack not found' }, { status: 404 })
-    }
-
-    // Check if user exists
-    const user = await prisma.user.findUnique({ where: { id: userId } })
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     // Create forked pack

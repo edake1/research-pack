@@ -16,7 +16,7 @@ async function main() {
       data: {
         name: 'Sarah Chen',
         email: 'sarah@example.com',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
+        image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
         bio: 'AI researcher and PhD candidate at MIT. Passionate about making research accessible.'
       }
     }),
@@ -24,7 +24,7 @@ async function main() {
       data: {
         name: 'Marcus Johnson',
         email: 'marcus@example.com',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus',
+        image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus',
         bio: 'Climate scientist studying carbon capture technologies. Open science advocate.'
       }
     }),
@@ -32,7 +32,7 @@ async function main() {
       data: {
         name: 'Elena Rodriguez',
         email: 'elena@example.com',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elena',
+        image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Elena',
         bio: 'Space enthusiast and aerospace engineer. Building the future of space exploration.'
       }
     })

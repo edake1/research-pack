@@ -140,15 +140,6 @@ export function PackForm({ initialData, isEditing = false }: PackFormProps) {
 
     setIsSubmitting(true)
     try {
-      const users = await fetch('/api/users/first').then(r => r.json()).catch(() => null)
-      const creatorId = users?.id
-
-      if (!creatorId) {
-        toast.error('No user found. Please sign in.')
-        setIsSubmitting(false)
-        return
-      }
-
       const url = isEditing ? `/api/packs/${initialData?.id}` : '/api/packs'
       const method = isEditing ? 'PATCH' : 'POST'
 
@@ -162,11 +153,17 @@ export function PackForm({ initialData, isEditing = false }: PackFormProps) {
           tags,
           sources: validSources,
           takeaways: validTakeaways,
-          creatorId,
         }),
       })
 
-      if (!res.ok) throw new Error('Failed to save pack')
+      if (!res.ok) {
+        if (res.status === 401) {
+          toast.error('Please sign in to create a pack')
+          setIsSubmitting(false)
+          return
+        }
+        throw new Error('Failed to save pack')
+      }
 
       const pack = await res.json()
       toast.success(isEditing ? 'Pack updated!' : 'Pack created!')

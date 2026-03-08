@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { requireAuth } from '@/lib/auth-utils'
 
 // GET /api/packs - List all packs with search
 export async function GET(request: NextRequest) {
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           creator: {
-            select: { id: true, name: true, avatar: true }
+            select: { id: true, name: true, image: true }
           },
           _count: {
             select: { sources: true, takeaways: true }
@@ -49,17 +50,15 @@ export async function GET(request: NextRequest) {
 // POST /api/packs - Create new pack
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAuth()
+    if (authResult.error) return authResult.error
+    const creatorId = authResult.userId
+
     const body = await request.json()
-    const { title, description, topic, tags, sources, takeaways, creatorId, forkedFromId } = body
+    const { title, description, topic, tags, sources, takeaways, forkedFromId } = body
 
-    if (!title || !description || !topic || !creatorId) {
+    if (!title || !description || !topic) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-
-    // Verify user exists
-    const user = await prisma.user.findUnique({ where: { id: creatorId } })
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     const pack = await prisma.researchPack.create({

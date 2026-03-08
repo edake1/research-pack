@@ -61,5 +61,6 @@ Caddyfile
 /skills/
 
 # OS
-Thumbs.db.zscripts/
+Thumbs.db
+.zscripts/
 .dockerignore

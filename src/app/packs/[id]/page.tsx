@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 interface Pack {
   id: string
@@ -38,7 +39,7 @@ interface Pack {
   creator: {
     id: string
     name: string
-    avatar: string | null
+    image: string | null
     bio: string | null
   }
   sources: Array<{
@@ -77,24 +78,12 @@ export default function PackDetailPage() {
   const [forking, setForking] = useState(false)
   const [thanking, setThanking] = useState(false)
   const [thanked, setThanked] = useState(false)
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const { data: session } = useSession()
+  const currentUserId = (session?.user as any)?.id ?? null
 
   useEffect(() => {
     fetchPack()
-    fetchCurrentUser()
   }, [packId])
-
-  const fetchCurrentUser = async () => {
-    try {
-      const res = await fetch('/api/users/first')
-      if (res.ok) {
-        const user = await res.json()
-        setCurrentUserId(user.id)
-      }
-    } catch (error) {
-      console.error('Failed to fetch current user:', error)
-    }
-  }
 
   const fetchPack = async () => {
     try {
@@ -116,8 +105,6 @@ export default function PackDetailPage() {
     try {
       const res = await fetch(`/api/packs/${pack.id}/fork`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUserId })
       })
       if (!res.ok) throw new Error('Failed to fork')
       const forkedPack = await res.json()
@@ -136,8 +123,6 @@ export default function PackDetailPage() {
     try {
       const res = await fetch(`/api/packs/${pack.id}/thanks`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUserId })
       })
       if (!res.ok) throw new Error('Failed to thank')
       const data = await res.json()
@@ -232,7 +217,7 @@ export default function PackDetailPage() {
             className="flex items-center gap-3 p-2 -m-2 rounded-xl hover:bg-muted/50 transition-colors"
           >
             <Avatar className="h-12 w-12 ring-2 ring-violet-500/20">
-              <AvatarImage src={pack.creator.avatar || undefined} alt={pack.creator.name} />
+              <AvatarImage src={pack.creator.image || undefined} alt={pack.creator.name} />
               <AvatarFallback className="bg-gradient-to-br from-violet-500 to-indigo-600 text-white font-medium">
                 {pack.creator.name.split(' ').map(n => n[0]).join('')}
               </AvatarFallback>
